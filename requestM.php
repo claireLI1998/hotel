@@ -19,22 +19,85 @@
 <html>
     <head>
         <title>CPSC 304 PHP/Oracle Demonstration</title>
+        <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <style>
+
+            .part{
+            padding-top: 0px;
+            padding-bottom: 0px;
+            background-image:url("pool.jpg"); 
+            background-size:100% 100%;
+            }
+
+            .lay{
+            margin:auto;
+            max-width: 600px;
+            padding-top: 30px;
+            text-align: center;
+            color: ivory;
+            font-size:25px;
+            font-family:"Verdana";
+            font-weight: bold;
+            margin-bottom: 50px;
+            }
+
+            .form-signin {
+            max-width: 330px;
+            color:ivory;
+            padding:0px;
+            margin:auto;
+            font-size:15px;
+            font-family:"Arial";
+            }
+
+            .button{
+            background-color: #C0B283;
+            border: none;
+            color: white;
+            margin-top: 50px;
+            margin-bottom: 30px;
+            margin-left:100px;
+            margin-right:100px;
+            padding-left: 20px;
+            padding-right: 20px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+        }
+
+    </style>
     </head>
 
     <body>
-        <h2>Request Room Maintenanace</h2>
-        <form method="POST" action="requestM.php"> <!--refresh page when submitted-->
+    <div class="part">
+    
+    <div class="lay">Request Room Maintenanace</div>
+        <ul>
+        
+        <form class="form-signin" method="POST" action="requestM.php"> <!--refresh page when submitted-->
             <input type="hidden" id="insertQueryRequest" name="insertQueryRequest">
-            Your Guest ID: <input type="text" name="insGid"> <br /><br />
-            We have several types of room maintenance to choose from:
+            <li>
+                <lable>YOUR GUEST ID </lable>
+                <input type="text" class="form-control" name="insGid">
+            </li>   
+            <br /><br /><br /><br />
+            We have several types of room maintenance:
             <li>Room Cleaning: $10/hr</li>
             <li>Washroom Maintenance: $90/hr</li>
             <li>Food ordering: $5/time</li>
             <li>Utilities repairing: $60/hr</li>
             <br />
-            Please choose the maintenance type: <input type="text" name="m_type"> <br /><br />
-            <input type="submit" value="Insert" name="insertSubmit"></p>
+            <li>
+                <lable>MAINTENANCE TYPE</lable>
+                <input type="text" class="form-control" name="m_type">
+            </li> 
+            <input type="submit" class="button" value="Insert" name="insertSubmit"></p>
         </form>
+    </ul>
+</div>
 
       
         <?php
