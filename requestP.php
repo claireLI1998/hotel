@@ -19,52 +19,121 @@
 <html>
     <head>
         <title>CPSC 304 PHP/Oracle Demonstration</title>
+        <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <style>
+
+            .part{
+            padding-top: 0px;
+            padding-bottom: 0px;
+            background-image:url("pool.jpg"); 
+            background-size:100% 100%;
+            }
+
+            .lay{
+            margin:auto;
+            max-width: 600px;
+            padding-top: 30px;
+            text-align: center;
+            color: ivory;
+            font-size:25px;
+            font-family:"Verdana";
+            font-weight: bold;
+            margin-bottom: 50px;
+            }
+
+            .form-signin {
+            max-width: 330px;
+            color:ivory;
+            padding:0px;
+            margin:auto;
+            font-size:15px;
+            font-family:"Arial";
+            }
+
+            .button{
+            background-color: #C0B283;
+            border: none;
+            color: white;
+            margin-top: 50px;
+            margin-bottom: 30px;
+            margin-left:100px;
+            margin-right:100px;
+            padding-left: 20px;
+            padding-right: 20px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+        }
+           
+        </style>
+
     </head>
 
     <body>
-        <h2>Reset</h2>
-        <p>If you wish to reset the table press on the reset button. If this is the first time you're running this page, you MUST use reset</p>
 
-        <form method="POST" action="requestP.php">
-            <!-- if you want another page to load after the button is clicked, you have to specify that page in the action parameter -->
-            <input type="hidden" id="resetTablesRequest" name="resetTablesRequest">
-            <p><input type="submit" value="Reset" name="reset"></p>
-        </form>
-
-        <hr />
-
-        <h2>Request Pet Service</h2>
-        <form method="POST" action="requestP.php"> <!--refresh page when submitted-->
+    <div class="part">
+        
+        <div class="lay">Request Pet Service</div>
+        
+        <ul>
+        <!-- <form method="POST" class="form_signin" action="requestP.php"> 
             <input type="hidden" id="insertQueryRequest" name="insertQueryRequest">
-            Your Guest ID: <input type="text" name="insGid"> <br /><br />
-            Your Pet Name: <input type="text" name="insName"> <br /><br />
-            We have 3 types of pet service: Washing, Feeding, Glooming. Please choose one from it.<br />
-            Service Type: <input type="text" name="insSt"> <br /><br />
-
-            <input type="submit" value="Insert" name="insertSubmit"></p>
+            <li>
+                        <label>YOUR GUEST ID</label>
+                        <input type="text" name="insGid" class="form-control">
+            </li>
+            <li>
+                        <label>YOUR PET NAME</label>
+                        <input type="text" name="insName" class="form-control">
+            </li>
+            
+            <li>
+                        <label>SERVICE TYPE</label>
+                        <input type="text" name="insSt" class="form-control">
+            </li>
+            <input type="submit" class="button" value="Insert" name="insertSubmit"></p>
+        
+        </form> -->
+        <form method="POST" class="form-signin" action="requestP.php"> <!--refresh page when submitted-->
+            <input type="hidden" id="insertQueryRequest" name="insertQueryRequest">
+            <li>
+                <lable>YOUR GUEST ID </lable>
+                <input type="text" class="form-control" name="insGid">
+            </li>   
+            <li>
+                <lable>YOUR PET NAME </lable>
+                <input type="text" class="form-control" name="insName">
+            </li> 
+            <br />
+            We have three types of pet service: Washing, Feeding, and Glooming. Please choose one of them.
+            <br /><br /><br />
+            <li>
+                <lable>SERVICE TYPE </lable>
+                <input type="text" class="form-control" name="insSt">
+            </li> 
+            <input type="submit" class="button" name="countTuples"></p>
         </form>
-
+        </ul>
+        
         <hr />
-
-        <h2>Update Name in DemoTable</h2>
-        <p>The values are case sensitive and if you enter in the wrong case, the update statement will not do anything.</p>
-
-        <form method="POST" action="requestP.php"> <!--refresh page when submitted-->
-            <input type="hidden" id="updateQueryRequest" name="updateQueryRequest">
-            Old Name: <input type="text" name="oldName"> <br /><br />
-            New Name: <input type="text" name="newName"> <br /><br />
-
-            <input type="submit" value="Update" name="updateSubmit"></p>
-        </form>
-
-        <hr />
-
-        <h2>Check your total pet service charges</h2>
-        <form method="GET" action="requestP.php"> <!--refresh page when submitted-->
+    
+        <div class="lay">Check your total pet service charges</div>
+        <ul>
+        <form method="GET" class="form-signin" action="requestP.php"> <!--refresh page when submitted-->
             <input type="hidden" id="countTupleRequest" name="countTupleRequest">
-            Please enter you guest ID: <input type="text" name="g_id"> <br /><br />
-            <input type="submit" name="countTuples"></p>
+            <li>
+                <lable>Please enter you guest ID </lable>
+                <input type="text" class="form-control" name="g_id">
+            </li>   
+            <input type="submit" class="button" name="countTuples"></p>
         </form>
+        </ul>
+        </div>
+
+    </div>
 
         <?php
 		//this tells the system that it's no longer just parsing html; it's now parsing PHP
@@ -237,9 +306,6 @@
             $alltake = array (
                 $take
             );
-
-            
-
             executeBoundSQL("insert into pet_service values (:bind1, :bind2, :bind3)", $alltuples);
             executeBoundSQL("insert into ask_for_ps values (:bind4, :bind5)", $allask);
             executeBoundSQL("insert into pet_take values (:bind6, :bind7, :bind8)", $alltake);
@@ -289,7 +355,7 @@
             }
         }
 
-		if (isset($_POST['reset']) || isset($_POST['updateSubmit']) || isset($_POST['insertSubmit'])) {
+		if (isset($_POST['updateSubmit']) || isset($_POST['insertSubmit'])) {
             handlePOSTRequest();
         } else if (isset($_GET['countTupleRequest'])) {
             handleGETRequest();
