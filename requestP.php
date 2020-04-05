@@ -66,6 +66,74 @@
             text-decoration: none;
             display: inline-block;
             font-size: 16px;
+/* Customize the label (the container) */
+.container {
+  display: block;
+  position: relative;
+  padding-left: 35px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: 22px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Hide the browser's default checkbox */
+.container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+/* Create a custom checkbox */
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: #eee;
+}
+
+/* On mouse-over, add a grey background color */
+.container:hover input ~ .checkmark {
+  background-color: #ccc;
+}
+
+/* When the checkbox is checked, add a blue background */
+.container input:checked ~ .checkmark {
+  background-color: #2196F3;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+.container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+.container .checkmark:after {
+  left: 9px;
+  top: 5px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+            
         }
            
         </style>
@@ -79,24 +147,6 @@
         <div class="lay">Request Pet Service</div>
         
         <ul>
-        <!-- <form method="POST" class="form_signin" action="requestP.php"> 
-            <input type="hidden" id="insertQueryRequest" name="insertQueryRequest">
-            <li>
-                        <label>YOUR GUEST ID</label>
-                        <input type="text" name="insGid" class="form-control">
-            </li>
-            <li>
-                        <label>YOUR PET NAME</label>
-                        <input type="text" name="insName" class="form-control">
-            </li>
-            
-            <li>
-                        <label>SERVICE TYPE</label>
-                        <input type="text" name="insSt" class="form-control">
-            </li>
-            <input type="submit" class="button" value="Insert" name="insertSubmit"></p>
-        
-        </form> -->
         <form method="POST" class="form-signin" action="requestP.php"> <!--refresh page when submitted-->
             <input type="hidden" id="insertQueryRequest" name="insertQueryRequest">
             <li>
@@ -114,21 +164,30 @@
                 <lable>SERVICE TYPE </lable>
                 <input type="text" class="form-control" name="insSt">
             </li> 
-            <input type="submit" class="button" name="countTuples"></p>
+            <input type="submit" class="button" value="SUBMIT" name="insertSubmit"></p>
         </form>
         </ul>
         
-        <hr />
-    
-        <div class="lay">Check your total pet service charges</div>
+        <div class="lay">Find Available Workers</div>
         <ul>
         <form method="GET" class="form-signin" action="requestP.php"> <!--refresh page when submitted-->
-            <input type="hidden" id="countTupleRequest" name="countTupleRequest">
-            <li>
-                <lable>Please enter you guest ID </lable>
-                <input type="text" class="form-control" name="g_id">
-            </li>   
-            <input type="submit" class="button" name="countTuples"></p>
+            <input type="hidden" id="projectTupleRequest" name="projectTupleRequest">
+            <label class="container">worker name
+                <input type="checkbox" value="worker_name" name="flag[]">
+                <span class="checkmark"></span>
+            </label>
+
+            <label class="container">worker id
+                <input type="checkbox" value="worker_id" name="flag[]">
+                <span class="checkmark"></span>
+            </label>
+
+            <label class="container">service charges per hour
+                <input type="checkbox" value="salary_per_hour" name="flag[]">
+                <span class="checkmark"></span>
+            </label>
+
+            <input type="submit" class="button" value="CHECK" name="projectTuples"></p>
         </form>
         </ul>
         </div>
@@ -210,17 +269,7 @@
             }
         }
 
-        function printResult($result) { //prints results from a select statement
-            echo "<br>Retrieved data from table demoTable:<br>";
-            echo "<table>";
-            echo "<tr><th>ID</th><th>Name</th></tr>";
-
-            while ($row = OCI_Fetch_Array($result, OCI_BOTH)) {
-                echo "<tr><td>" . $row["NID"] . "</td><td>" . $row["NAME"] . "</td></tr>"; //or just use "echo $row[0]" 
-            }
-
-            echo "</table>";
-        }
+        
 
         function connectToDB() {
             global $db_conn;
@@ -312,21 +361,49 @@
             OCICommit($db_conn);
         }
 
-        function handleCountRequest() {
+        function handleProjectRequest() {
             global $db_conn;
+            
+            if(isset($_GET["flag"])) $ah = $_GET["flag"];
+            else $ah = "null";
 
-            $result = executePlainSQL("SELECT SUM(psc.service_price) 
-                                        FROM psc, pet_service, ask_for_ps
-                                        WHERE ask_for_ps.guest_id = " . $_GET['g_id']. "
-                                            AND pet_service.s_id = ask_for_ps.s_id 
-                                            AND psc.service_type_name = pet_service.service_type
-                                        GROUP BY(ask_for_ps.guest_id)");
 
-            if (($row = oci_fetch_row($result)) != false) {
-                echo "<br> Total charges: " . $row[0] . "<br>";
+            if(isset($_GET["flag"])){
+                foreach($ah as $value){
+                    
+                }
             }
+
+            if(count($ah) == 1){
+                $result = executePlainSQL("SELECT $ah[0]
+                                        FROM hotel_worker");
+            } else if(count($ah) == 2){
+                $result = executePlainSQL("SELECT $ah[0], $ah[1]
+                                        FROM hotel_worker");
+
+            } else if(count($ah) == 3){
+                $result = executePlainSQL("SELECT $ah[0], $ah[1], $ah[2]
+                                        FROM hotel_worker");
+
+            }
+            
+            printResult($result);
         }
 
+        function printResult($result) { //prints results from a select statement
+            echo "<table>";
+            echo "<tr><th>worker name</th><th>worker ID</th><th>charges per hour</th></tr>";
+    
+            while ($row = OCI_Fetch_Array($result, OCI_BOTH)) {
+                echo "<tr><td>" . $row[0] . 
+                    "</td><td>" . $row[1] .
+                    "</td><td>" . $row[2] .
+                    "</td></tr>"; //or just use "echo $row[0]" 
+            }
+    
+            echo "</table>";
+        }
+    
         // HANDLE ALL POST ROUTES
 	// A better coding practice is to have one method that reroutes your requests accordingly. It will make it easier to add/remove functionality.
         function handlePOSTRequest() {
@@ -347,8 +424,8 @@
 	// A better coding practice is to have one method that reroutes your requests accordingly. It will make it easier to add/remove functionality.
         function handleGETRequest() {
             if (connectToDB()) {
-                if (array_key_exists('countTuples', $_GET)) {
-                    handleCountRequest();
+                if (array_key_exists('projectTuples', $_GET)) {
+                    handleProjectRequest();
                 }
 
                 disconnectFromDB();
@@ -357,7 +434,7 @@
 
 		if (isset($_POST['updateSubmit']) || isset($_POST['insertSubmit'])) {
             handlePOSTRequest();
-        } else if (isset($_GET['countTupleRequest'])) {
+        } else if (isset($_GET['projectTupleRequest'])) {
             handleGETRequest();
         }
 		?>

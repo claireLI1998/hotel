@@ -13,7 +13,7 @@ drop table pet_friendly_room;
 drop table hotel_worker;
 drop table manager;
 drop table pet_service;
-
+drop table psc;
 
 
 create table guest
@@ -125,7 +125,10 @@ create table providemt
          FOREIGN KEY(worker_id) REFERENCES hotel_worker,
          FOREIGN KEY(maintenance_id) REFERENCES room_maintenance);
 
-create table manage_worker
+create table psc
+    (service_type_name char(30),
+        service_price number(5));
+
 
 
 insert into pet_free_room
@@ -144,6 +147,16 @@ values ('2020-04-01','2020-04-02', 2, 8800);
 
 insert into pet_free_room
 values(202, 250, 0); 
+
+insert into psc
+values('Washing', 50);
+
+insert into psc
+values('Feeding', 20);
+
+insert into psc
+values('Glooming', 40);
+
 
 insert into pet_free_room
 values(203, 250, 0); 
@@ -184,20 +197,32 @@ values('Rose', 3003, 7);
 insert into hotel_worker
 values('Pony', 3004, 13);
 
+insert into hotel_worker
+values('Lisa', 3005, 25);
+
+insert into hotel_worker
+values('Derek', 3006, 10);
+
 insert into manager
 values('JJ', 999);
 
 insert into room_maintenance
-    values('utility repair', 10, 0);
+values('utility repair', 10, 0);
     
 insert into pet_service
-values('grooming', 100, 0);
+values('Glooming', 100, 0);
+
+insert into pet_service
+values('Washing', 101, 0);
+
+insert into pet_service
+values('Feeding', 102, 0);
 
 insert into dops
 values(3004, 100);
 
 insert into providemt
-    values(3004, 10);
+values(3004, 10);
 
 insert into registerpet
 values('Pipi', 'cat', 19);
@@ -211,9 +236,16 @@ values(304, 2);
 insert into selectroom
 values(303, 19);
 
+insert into ask_for_ps
+values(100, 19);
 
+insert into ask_for_ps
+values(101, 19);
 
+insert into ask_for_ps
+values(102, 19);
 
+grant select on psc to public;
 
 grant select on pet_free_room to public;
 

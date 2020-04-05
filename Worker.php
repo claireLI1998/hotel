@@ -226,7 +226,7 @@
         }
 
         function print_service_result($result) { //prints results from a select statement
-            echo "<table>";
+            echo "<table border=>";
             echo "<tr><th>SERVICE ID</th><th>SERVICE TYPE</th><th>PET NAME</th><th>ROOM NUMBER</th><th>GUEST ID</th></tr>";
 
             while ($row = OCI_Fetch_Array($result, OCI_BOTH)) {
