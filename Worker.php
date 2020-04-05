@@ -31,11 +31,20 @@
 
         <hr />
 
-        <h2>Update work status</h2>
+        <h2>Update Pet Service Status</h2>
         <form method="POST" action="Worker.php"> <!--refresh page when submitted-->
             <input type="hidden" id="updateQueryRequest" name="updateQueryRequest">
-            Your ID: <input type="text" name="updateID"> <br /><br />        
+            SID: <input type="text" name="updateID"> <br /><br />        
             <input type="submit" name="updateStatus"></p>
+        </form>
+
+        <hr />
+
+        <h2>Update Maintainance Status</h2>
+        <form method="POST" action="Worker.php"> <!--refresh page when submitted-->
+            <input type="hidden" id="UMS" name="UMS">
+            MID: <input type="text" name="upMS"> <br /><br />        
+            <input type="submit" name="updateMS"></p>
         </form>
 
         <?php
@@ -118,7 +127,7 @@
 
             // Your username is ora_(CWL_ID) and the password is a(student number). For example, 
 			// ora_platypus is the username and a12345678 is the password.
-            $db_conn = OCILogon("ora_ruolin82", "a31764160", "dbhost.students.cs.ubc.ca:1522/stu");
+            $db_conn = OCILogon("ora_zzxyrg", "a22851620", "dbhost.students.cs.ubc.ca:1522/stu");
 
             if ($db_conn) {
                 debugAlertMessage("Database is Connected");
@@ -144,17 +153,33 @@
             $old_name = $_POST['updateID'];
             $new_name = 1;
 
-            $result = executePlainSQL("SELECT maintenance_id
-                            FROM providemt
-                            WHERE worker_id = " . $_POST['updateID']. "");
+            executePlainSQL("UPDATE pet_service SET complete= " . $new_name . " WHERE s_id=" . $old_name . "");
 
-            print_status_result($result);
+            
             // you need the wrap the old name and new name values with single quotations
             // executePlainSQL("UPDATE room_maintenance SET room_maintanence.complete='" . $new_name . "' 
             //     FROM room_maintenance, providemt
             //     WHERE room_maintenance.maintenance_id = providemt.maintenance_id
             //     AND providemt.worker_id = '" . $old_name . "'");
             OCICommit($db_conn);
+        }
+
+        function handleUMSRequest(){
+        global $db_conn;
+
+            $old_name = $_POST['upMS'];
+            $new_name = 1;
+
+            executePlainSQL("UPDATE room_maintenance SET complete= " . $new_name . " WHERE maintenance_id =" . $old_name . "");
+
+            
+            // you need the wrap the old name and new name values with single quotations
+            // executePlainSQL("UPDATE room_maintenance SET room_maintanence.complete='" . $new_name . "' 
+            //     FROM room_maintenance, providemt
+            //     WHERE room_maintenance.maintenance_id = providemt.maintenance_id
+            //     AND providemt.worker_id = '" . $old_name . "'");
+            OCICommit($db_conn);
+
         }
 
         function print_status_result($result){
@@ -196,6 +221,8 @@
             OCICommit($db_conn);
         }
 
+        
+
         function handleCountRequest() {
             global $db_conn;
 
@@ -213,20 +240,25 @@
             echo"Your Current remaining number of Maintenance Work:";
 
             $result_total = executePlainSQL("SELECT COUNT(*)
-                            FROM providemt
-                            WHERE providemt.worker_id = " . $_GET['ID']. "");
+                            FROM providemt p, room_maintenance r
+                            WHERE r.complete = 0 AND r.maintenance_id = p.maintenance_id AND p.worker_id = " . $_GET['ID']. "");
 
             while (($row = oci_fetch_row($result_total)) != false) {
                 echo "<br>$row[0]<br>";
             }
 
-            $resultm = executePlainSQL("SELECT maintenance_id FROM providemt Where worker_id = " . $_GET['ID']. "");
+            $resultm = executePlainSQL("SELECT p.maintenance_id FROM providemt p, room_maintenance r Where r.complete = 0 AND r.maintenance_id = p.maintenance_id AND p.worker_id = " . $_GET['ID']. ""); 
+            while (($row = oci_fetch_row($resultm)) != false) {
+                echo "<br>MID: $row[0]<br>";
+            }
 
             
         }
 
+
+
         function print_service_result($result) { //prints results from a select statement
-            echo "<table border=>";
+            echo "<table>";
             echo "<tr><th>SERVICE ID</th><th>SERVICE TYPE</th><th>PET NAME</th><th>ROOM NUMBER</th><th>GUEST ID</th></tr>";
 
             while ($row = OCI_Fetch_Array($result, OCI_BOTH)) {
@@ -250,7 +282,9 @@
                     handleUpdateRequest();
                 } else if (array_key_exists('insertQueryRequest', $_POST)) {
                     handleInsertRequest();
-                } 
+                } else if (array_key_exists('UMS', $_POST)) {
+                    handleUMSRequest();
+                }
 
                 disconnectFromDB();
             }
@@ -268,7 +302,7 @@
             }
         }
 
-		if (isset($_POST['reset']) || isset($_POST['updateSubmit']) || isset($_POST['insertSubmit']) || isset($_POST['updateStatus'])) {
+		if (isset($_POST['reset'])|| isset($_POST['updateMS']) || isset($_POST['updateSubmit'])|| isset($_POST['insertSubmit']) || isset($_POST['updateStatus'])) {
             handlePOSTRequest();
         } else if (isset($_GET['countTupleRequest'])) {
             handleGETRequest();

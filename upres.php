@@ -19,87 +19,19 @@
 <html>
     <head>
         <title>CPSC 304 PHP/Oracle Demonstration</title>
-        <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-        <style>
-
-            .part{
-            padding-top: 0px;
-            padding-bottom: 0px;
-            background-image:url("pool.jpg"); 
-            background-size:100% 100%;
-            }
-
-            .lay{
-            margin:auto;
-            max-width: 600px;
-            padding-top: 30px;
-            text-align: center;
-            color: ivory;
-            font-size:25px;
-            font-family:"Verdana";
-            font-weight: bold;
-            margin-bottom: 50px;
-            }
-
-            .form-signin {
-            max-width: 330px;
-            color:ivory;
-            padding:0px;
-            margin:auto;
-            font-size:15px;
-            font-family:"Arial";
-            }
-
-            .button{
-            background-color: #C0B283;
-            border: none;
-            color: white;
-            margin-top: 50px;
-            margin-bottom: 30px;
-            margin-left:100px;
-            margin-right:100px;
-            padding-left: 20px;
-            padding-right: 20px;
-            padding-top: 5px;
-            padding-bottom: 5px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-        }
-
-    </style>
     </head>
 
     <body>
-    <div class="part">
-    
-    <div class="lay">Request Room Maintenanace</div>
-        <ul>
-        
-        <form class="form-signin" method="POST" action="requestM.php"> <!--refresh page when submitted-->
-            <input type="hidden" id="insertQueryRequest" name="insertQueryRequest">
-            <li>
-                <lable>YOUR GUEST ID </lable>
-                <input type="text" class="form-control" name="insGid">
-            </li>   
-            <br /><br /><br /><br />
-            We have several types of room maintenance:
-            <li>Room Cleaning: $10/hr</li>
-            <li>Washroom Maintenance: $90/hr</li>
-            <li>Food ordering: $5/time</li>
-            <li>Utilities repairing: $60/hr</li>
-            <br />
-            <li>
-                <lable>MAINTENANCE TYPE</lable>
-                <input type="text" class="form-control" name="m_type">
-            </li> 
-            <input type="submit" class="button" value="Insert" name="insertSubmit"></p>
-        </form>
-    </ul>
-</div>
 
-      
+        <h2>Update Reservation</h2>
+        <form method="POST" action="upres.php"> <!--refresh page when submitted-->
+            <input type="hidden" id="updateQueryRequest" name="updateQueryRequest">
+            Your Reservation ID: <input type="text" name="ID"> <br /><br />
+            New check_in date: <input type="text" name="updatei"> <br /><br /> 
+            New check_out date: <input type="text" name="updatec"> <br /><br />        
+            <input type="submit" name="updateStatus"></p>
+        </form>
+
         <?php
 		//this tells the system that it's no longer just parsing html; it's now parsing PHP
 
@@ -175,18 +107,6 @@
             }
         }
 
-        function printResult($result) { //prints results from a select statement
-            echo "<br>Retrieved data from table demoTable:<br>";
-            echo "<table>";
-            echo "<tr><th>ID</th><th>Name</th></tr>";
-
-            while ($row = OCI_Fetch_Array($result, OCI_BOTH)) {
-                echo "<tr><td>" . $row["NID"] . "</td><td>" . $row["NAME"] . "</td></tr>"; //or just use "echo $row[0]" 
-            }
-
-            echo "</table>";
-        }
-
         function connectToDB() {
             global $db_conn;
 
@@ -214,13 +134,25 @@
 
         function handleUpdateRequest() {
             global $db_conn;
+            $id = $_POST['ID'];
+            $old_name = $_POST['updatei'];
+            $new_name = $_POST['updatec'];
 
-            $old_name = $_POST['oldName'];
-            $new_name = $_POST['newName'];
+            executePlainSQL("UPDATE reservation SET checkin='" . $old_name . "' WHERE rid='" . $id . "'");
+            executePlainSQL("UPDATE reservation SET checkout='" . $new_name . "' WHERE rid='" . $id . "'");
 
-            // you need the wrap the old name and new name values with single quotations
-            executePlainSQL("UPDATE demoTable SET name='" . $new_name . "' WHERE name='" . $old_name . "'");
             OCICommit($db_conn);
+        }
+
+        function print_status_result($result){
+            echo "<table>";
+            echo "<tr><th>MAINTENANCE ID</th></tr>";
+
+            while ($row = OCI_Fetch_Array($result, OCI_BOTH)) {
+                echo "<tr><td>" . $row[0] . "</td></tr>"; //or just use "echo $row[0]" 
+            }
+
+            echo "</table>";
         }
 
         function handleResetRequest() {
@@ -237,44 +169,60 @@
         function handleInsertRequest() {
             global $db_conn;
 
-            $result = executePlainSQL("SELECT Count(*) FROM room_maintenance");
-
-            if (($row = oci_fetch_row($result)) != false) {
-                 $sidtemp = $row[0];
-            }
- 
-            $ctemp = 0;
-
             //Getting the values from user and insert data into the table
             $tuple = array (
-                ":bind1" => $_POST['m_type'],
-                ":bind3" => $sidtemp,
-                ":bind4" => $ctemp);
+                ":bind1" => $_POST['insNo'],
+                ":bind2" => $_POST['insName']
+            );
 
             $alltuples = array (
                 $tuple
             );
 
-            $ask = array (
-                ":bind5" => $sidtemp,
-                ":bind6" => $_POST['insGid']);
-
-            $allask = array (
-                $ask
-            );
-            executeBoundSQL("insert into room_maintenance values (:bind1, :bind3, :bind4)", $alltuples);
-            executeBoundSQL("insert into ask_for_mt values (:bind5, :bind6)", $allask);
+            executeBoundSQL("insert into demoTable values (:bind1, :bind2)", $alltuples);
             OCICommit($db_conn);
         }
 
         function handleCountRequest() {
             global $db_conn;
 
-            $result = executePlainSQL("SELECT Count(*) FROM demoTable");
+            echo "Your Pet Service Work<br>";
+            $result = executePlainSQL("SELECT pet_service.s_id, pet_service.service_type, pet_take.p_name, selectroom.room_number, pet_take.guest_id  
+                FROM pet_service, dops, pet_take, selectroom    
+                Where pet_service.s_id = dops.s_id AND dops.worker_id = " . $_GET['ID']. " AND pet_take.s_id = dops.s_id
+                        AND pet_take.guest_id = selectroom.guest_id
+                        AND pet_service.complete = 0" );
 
-            if (($row = oci_fetch_row($result)) != false) {
-                echo "<br> The number of tuples in demoTable: " . $row[0] . "<br>";
+            print_service_result($result);
+            echo"<br />";
+
+
+            echo"Your Current remaining number of Maintenance Work:";
+
+            $result_total = executePlainSQL("UPDATE demoTable SET name='" . $new_name . "' WHERE name='" . $old_name . "'");
+
+            while (($row = oci_fetch_row($result_total)) != false) {
+                echo "<br>$row[0]<br>";
             }
+
+            $resultm = executePlainSQL("SELECT maintenance_id FROM providemt Where worker_id = " . $_GET['ID']. "");
+
+            
+        }
+
+        function print_service_result($result) { //prints results from a select statement
+            echo "<table>";
+            echo "<tr><th>SERVICE ID</th><th>SERVICE TYPE</th><th>PET NAME</th><th>ROOM NUMBER</th><th>GUEST ID</th></tr>";
+
+            while ($row = OCI_Fetch_Array($result, OCI_BOTH)) {
+                echo "<tr><td>" . $row[0] . 
+                    "</td><td>" . $row[1] .
+                    "</td><td>" . $row[2] .
+                    "</td><td>" . $row[3] .
+                    "</td><td>" . $row[4] ."</td></tr>"; //or just use "echo $row[0]" 
+            }
+
+            echo "</table>";
         }
 
         // HANDLE ALL POST ROUTES
@@ -287,7 +235,7 @@
                     handleUpdateRequest();
                 } else if (array_key_exists('insertQueryRequest', $_POST)) {
                     handleInsertRequest();
-                }
+                } 
 
                 disconnectFromDB();
             }
@@ -299,13 +247,13 @@
             if (connectToDB()) {
                 if (array_key_exists('countTuples', $_GET)) {
                     handleCountRequest();
-                }
+                } 
 
                 disconnectFromDB();
             }
         }
 
-		if (isset($_POST['reset']) || isset($_POST['updateSubmit']) || isset($_POST['insertSubmit'])) {
+		if (isset($_POST['reset']) || isset($_POST['updateSubmit']) || isset($_POST['insertSubmit']) || isset($_POST['updateStatus'])) {
             handlePOSTRequest();
         } else if (isset($_GET['countTupleRequest'])) {
             handleGETRequest();

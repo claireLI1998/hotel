@@ -94,6 +94,9 @@
                 
                 <form class="form-signin" method="POST" action="final1.php"> <!--refresh page when submitted-->
                     <input type="hidden" id="insertQueryRequest" name="insertQueryRequest">
+                               
+                    Already Has A Reservation? You can update here.<br>
+                    <a href="upres.php" class="far" target="_blank">Update</a>
 
                     <li>
                         <label>NAME</label>
@@ -103,6 +106,11 @@
                     <li>
                         <label>ID</label>
                         <input type="text" name="insid" class="form-control" required autofocus>
+                    </li>
+
+                    <li>
+                        <label>Email</label>
+                        <input type="text" name="insEmail" class="form-control" required autofocus>
                     </li>
 
                     <li>
@@ -118,11 +126,13 @@
                     <li>
                         <label>CHECK IN DATE  </label>
                         <input input type="text" name="insCin" class="form-control" required autofocus>
+                        (Format:YYYY-MM-DD)
                     </li>
 
                     <li>
                         <label>CHECK OUT DATE</label>
                         <input input type="text" name="insCout" class="form-control" required autofocus>
+                        (Format:YYYY-MM-DD)
                     </li>
 
                     <li>
@@ -219,7 +229,7 @@
 
             // Your username is ora_(CWL_ID) and the password is a(student number). For example, 
 			// ora_platypus is the username and a12345678 is the password.
-            $db_conn = OCILogon("ora_ruolin82", "a31764160", "dbhost.students.cs.ubc.ca:1522/stu");
+            $db_conn = OCILogon("ora_zzxyrg", "a22851620", "dbhost.students.cs.ubc.ca:1522/stu");
 
             if ($db_conn) {
                 debugAlertMessage("Database is Connected");
@@ -319,6 +329,10 @@
 . 1 . " WHERE room_number= " . $_POST['insRnumber'] . "");
             executePlainSQL("UPDATE pet_friendly_room SET occupy_pet = " 
 . 1 . " WHERE room_number= " . $_POST['insRnumber'] . "");
+
+            $rpp = executePlainSQL("SELECT Count(*) FROM reservation");
+
+            echo"Your Reservation ID: $ridtemp <br>";
 
             OCICommit($db_conn);
         }

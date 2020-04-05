@@ -66,74 +66,6 @@
             text-decoration: none;
             display: inline-block;
             font-size: 16px;
-/* Customize the label (the container) */
-.container {
-  display: block;
-  position: relative;
-  padding-left: 35px;
-  margin-bottom: 12px;
-  cursor: pointer;
-  font-size: 22px;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
-/* Hide the browser's default checkbox */
-.container input {
-  position: absolute;
-  opacity: 0;
-  cursor: pointer;
-  height: 0;
-  width: 0;
-}
-
-/* Create a custom checkbox */
-.checkmark {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 25px;
-  width: 25px;
-  background-color: #eee;
-}
-
-/* On mouse-over, add a grey background color */
-.container:hover input ~ .checkmark {
-  background-color: #ccc;
-}
-
-/* When the checkbox is checked, add a blue background */
-.container input:checked ~ .checkmark {
-  background-color: #2196F3;
-}
-
-/* Create the checkmark/indicator (hidden when not checked) */
-.checkmark:after {
-  content: "";
-  position: absolute;
-  display: none;
-}
-
-/* Show the checkmark when checked */
-.container input:checked ~ .checkmark:after {
-  display: block;
-}
-
-/* Style the checkmark/indicator */
-.container .checkmark:after {
-  left: 9px;
-  top: 5px;
-  width: 5px;
-  height: 10px;
-  border: solid white;
-  border-width: 0 3px 3px 0;
-  -webkit-transform: rotate(45deg);
-  -ms-transform: rotate(45deg);
-  transform: rotate(45deg);
-}
-            
         }
            
         </style>
@@ -168,6 +100,8 @@
         </form>
         </ul>
         
+        <hr />
+
         <div class="lay">Find Available Workers</div>
         <ul>
         <form method="GET" class="form-signin" action="requestP.php"> <!--refresh page when submitted-->
@@ -182,7 +116,7 @@
                 <span class="checkmark"></span>
             </label>
 
-            <label class="container">service charges per hour
+            <label class="container">salary per hour
                 <input type="checkbox" value="salary_per_hour" name="flag[]">
                 <span class="checkmark"></span>
             </label>
@@ -269,14 +203,26 @@
             }
         }
 
-        
+        function printResult($result) { //prints results from a select statement
+            echo "<table>";
+            echo "<tr><th>worker name</th><th>worker ID</th><th>salary per hour</th></tr>";
+    
+            while ($row = OCI_Fetch_Array($result, OCI_BOTH)) {
+                echo "<tr><td>" . $row[0] . 
+                    "</td><td>" . $row[1] .
+                    "</td><td>" . $row[2] .
+                    "</td></tr>"; //or just use "echo $row[0]" 
+            }
+    
+            echo "</table>";
+        }
 
         function connectToDB() {
             global $db_conn;
 
             // Your username is ora_(CWL_ID) and the password is a(student number). For example, 
 			// ora_platypus is the username and a12345678 is the password.
-            $db_conn = OCILogon("ora_ruolin82", "a31764160", "dbhost.students.cs.ubc.ca:1522/stu");
+            $db_conn = OCILogon("ora_zzxyrg", "a22851620", "dbhost.students.cs.ubc.ca:1522/stu");
 
             if ($db_conn) {
                 debugAlertMessage("Database is Connected");
@@ -322,6 +268,7 @@
             global $db_conn;
 
             $result = executePlainSQL("SELECT Count(*) FROM pet_service");
+
 
             if (($row = oci_fetch_row($result)) != false) {
                  $sidtemp = $row[0];
@@ -390,20 +337,22 @@
             printResult($result);
         }
 
-        function printResult($result) { //prints results from a select statement
-            echo "<table>";
-            echo "<tr><th>worker name</th><th>worker ID</th><th>charges per hour</th></tr>";
-    
-            while ($row = OCI_Fetch_Array($result, OCI_BOTH)) {
-                echo "<tr><td>" . $row[0] . 
-                    "</td><td>" . $row[1] .
-                    "</td><td>" . $row[2] .
-                    "</td></tr>"; //or just use "echo $row[0]" 
+
+        function handleCountRequest() {
+            global $db_conn;
+
+            $result = executePlainSQL("SELECT SUM(psc.service_price) 
+                                        FROM psc, pet_service, ask_for_ps
+                                        WHERE ask_for_ps.guest_id =" .$_GET['g_id'] ."
+                                            AND pet_service.s_id = ask_for_ps.s_id 
+                                            AND psc.service_type_name = pet_service.service_type
+                                        ");
+
+            if (($row = oci_fetch_row($result)) != false) {
+                echo "<br> Total charges: " . $row[0] . "<br>";
             }
-    
-            echo "</table>";
         }
-    
+
         // HANDLE ALL POST ROUTES
 	// A better coding practice is to have one method that reroutes your requests accordingly. It will make it easier to add/remove functionality.
         function handlePOSTRequest() {
@@ -424,7 +373,9 @@
 	// A better coding practice is to have one method that reroutes your requests accordingly. It will make it easier to add/remove functionality.
         function handleGETRequest() {
             if (connectToDB()) {
-                if (array_key_exists('projectTuples', $_GET)) {
+                if (array_key_exists('countTuples', $_GET)) {
+                    handleCountRequest();
+                }else if (array_key_exists('projectTuples', $_GET)) {
                     handleProjectRequest();
                 }
 
@@ -434,7 +385,7 @@
 
 		if (isset($_POST['updateSubmit']) || isset($_POST['insertSubmit'])) {
             handlePOSTRequest();
-        } else if (isset($_GET['projectTupleRequest'])) {
+        } else if (isset($_GET['countTupleRequest']) || isset($_GET['projectTupleRequest'])) {
             handleGETRequest();
         }
 		?>
